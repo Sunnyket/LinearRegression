@@ -10,6 +10,7 @@ const passportLocalMongoose = require('passport-local-mongoose');
 //const { Passport } = require('passport');
 // const bcrypt = require('bcrypt');
 // const saltRounds = 7;
+kk
 
 const app = express();
 
@@ -36,14 +37,25 @@ const userSchema = new mongoose.Schema({
     nickname: String
 });
 
-userSchema.plugin(passportLocalMongoose);
+const userAuth = new mongoose.Schema({
+    email: String,
+    password: String,
+});
+
+userAuth.plugin(passportLocalMongoose);
+//userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model('User', userSchema);
+const UserAuth = new mongoose.model('UserAuth', userAuth);
 
-passport.use(User.createStrategy());
+//passport.use(User.createStrategy());
+passport.use(UserAuth.createStrategy());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser(UserAuth.serializeUser());
+passport.deserializeUser(UserAuth.deserializeUser());
+//passport.serializeUser(User.serializeUser());
+//passport.deserializeUser(User.deserializeUser());
 
 
 app.get('/', (req, res)=>{
@@ -71,8 +83,20 @@ app.get('/logout', (req, res)=>{
     res.redirect('/');
 });
 
+// app.post('/register', (req, res) => {
+//     User.register({email: req.body.email, username: req.body.username, nickname: req.body.nickname}, req.body.password, (err, user)=>{
+//         if(err){
+//             console.log(err);
+//         } else{
+//             passport.authenticate('local')(req, res, ()=>{
+//                 res.redirect('/secrets');
+//             });
+//         }
+//     });
+// });
+
 app.post('/register', (req, res) => {
-    User.register({email: req.body.email, username: req.body.username, nickname: req.body.nickname}, req.body.password, (err, user)=>{
+    UserAuth.register({email: req.body.email}, req.body.password, (err, user)=>{
         if(err){
             console.log(err);
         } else{
@@ -81,6 +105,7 @@ app.post('/register', (req, res) => {
             });
         }
     });
+    
 });
 
 app.post('/login', (req, res)=>{
